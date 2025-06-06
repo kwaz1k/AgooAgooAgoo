@@ -1,0 +1,33 @@
+create table partners (
+	id serial primary key,
+	type_partners varchar(255),
+	name varchar(255),
+	ceo varchar(255),
+	email varchar(255),
+	phone varchar(255),
+	addres varchar(255),
+	inn varchar(255),
+	rating varchar(255)
+);
+
+create table partners_products (
+	id serial primary key,
+	product text,
+	id_partners int REFERENCES partners(id),
+	count int,
+	date_sells date
+);
+
+create table products_type (
+	id serial primary key,
+	type varchar(255),
+	coeff_type_product varchar(255)
+);
+
+create table products (
+	id serial primary key,
+	id_products_type int REFERENCES products_type(id),
+	name varchar(255),
+	article varchar(255),
+	min_cost float
+);

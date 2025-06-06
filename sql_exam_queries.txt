@@ -1,0 +1,375 @@
+# SQL Запросы для Экзаменов
+
+## Базовые запросы
+
+### SELECT - извлечение данных
+```sql
+-- Базовая форма
+SELECT column1, column2 FROM table_name;
+
+-- Выбрать все столбцы
+SELECT * FROM table_name;
+
+-- С условием WHERE
+SELECT column1, column2 FROM table_name WHERE condition;
+
+-- С сортировкой
+SELECT column1, column2 FROM table_name ORDER BY column1 [ASC|DESC];
+
+-- С ограничением количества строк
+SELECT column1, column2 FROM table_name LIMIT n;
+
+-- С пропуском первых n строк
+SELECT column1, column2 FROM table_name OFFSET n;
+
+-- С исключением дубликатов
+SELECT DISTINCT column1 FROM table_name;
+```
+
+### INSERT - добавление данных
+```sql
+-- Базовая форма
+INSERT INTO table_name (column1, column2) VALUES (value1, value2);
+
+-- Вставка нескольких строк
+INSERT INTO table_name (column1, column2) VALUES 
+(value1, value2),
+(value3, value4),
+(value5, value6);
+
+-- Вставка из результатов запроса
+INSERT INTO table_name (column1, column2)
+SELECT column1, column2 FROM another_table WHERE condition;
+```
+
+### UPDATE - изменение данных
+```sql
+-- Базовая форма
+UPDATE table_name SET column1 = value1 WHERE condition;
+
+-- Обновление нескольких столбцов
+UPDATE table_name SET 
+  column1 = value1,
+  column2 = value2
+WHERE condition;
+
+-- Обновление на основе другой таблицы
+UPDATE table1 t1
+SET column1 = t2.column1
+FROM table2 t2
+WHERE t1.id = t2.id;
+```
+
+### DELETE - удаление данных
+```sql
+-- Базовая форма
+DELETE FROM table_name WHERE condition;
+
+-- Удаление всех строк
+DELETE FROM table_name;
+
+-- Удаление с подзапросом
+DELETE FROM table_name WHERE column1 IN (SELECT column1 FROM another_table WHERE condition);
+```
+
+## Агрегатные функции и группировка
+
+```sql
+-- Подсчет строк
+SELECT COUNT(*) FROM table_name;
+SELECT COUNT(column1) FROM table_name;
+
+-- Сумма
+SELECT SUM(column1) FROM table_name;
+
+-- Среднее значение
+SELECT AVG(column1) FROM table_name;
+
+-- Минимальное значение
+SELECT MIN(column1) FROM table_name;
+
+-- Максимальное значение
+SELECT MAX(column1) FROM table_name;
+
+-- Группировка
+SELECT column1, COUNT(*) FROM table_name GROUP BY column1;
+
+-- Группировка с условием на агрегат
+SELECT column1, COUNT(*) FROM table_name GROUP BY column1 HAVING COUNT(*) > 5;
+```
+
+## Объединение таблиц (JOIN)
+
+```sql
+-- INNER JOIN (пересечение)
+SELECT t1.column1, t2.column2
+FROM table1 t1
+INNER JOIN table2 t2 ON t1.key = t2.key;
+
+-- LEFT JOIN (все из левой + совпадения из правой)
+SELECT t1.column1, t2.column2
+FROM table1 t1
+LEFT JOIN table2 t2 ON t1.key = t2.key;
+
+-- RIGHT JOIN (все из правой + совпадения из левой)
+SELECT t1.column1, t2.column2
+FROM table1 t1
+RIGHT JOIN table2 t2 ON t1.key = t2.key;
+
+-- FULL JOIN (все из обеих таблиц)
+SELECT t1.column1, t2.column2
+FROM table1 t1
+FULL JOIN table2 t2 ON t1.key = t2.key;
+
+-- CROSS JOIN (декартово произведение)
+SELECT t1.column1, t2.column2
+FROM table1 t1
+CROSS JOIN table2 t2;
+
+-- Объединение нескольких таблиц
+SELECT t1.column1, t2.column2, t3.column3
+FROM table1 t1
+JOIN table2 t2 ON t1.key = t2.key
+JOIN table3 t3 ON t2.key = t3.key;
+```
+
+## Подзапросы
+
+```sql
+-- Подзапрос в WHERE
+SELECT column1 FROM table1 
+WHERE column2 IN (SELECT column2 FROM table2 WHERE condition);
+
+-- Подзапрос в FROM
+SELECT avg_value
+FROM (SELECT AVG(column1) as avg_value FROM table1 GROUP BY column2) AS subquery;
+
+-- Коррелированный подзапрос
+SELECT column1, column2
+FROM table1 t1
+WHERE column1 > (SELECT AVG(column1) FROM table1 t2 WHERE t2.column2 = t1.column2);
+
+-- Существование (EXISTS)
+SELECT column1 FROM table1 t1
+WHERE EXISTS (SELECT 1 FROM table2 t2 WHERE t2.key = t1.key);
+```
+
+## Объединение результатов запросов
+
+```sql
+-- UNION (без дубликатов)
+SELECT column1 FROM table1
+UNION
+SELECT column1 FROM table2;
+
+-- UNION ALL (с дубликатами)
+SELECT column1 FROM table1
+UNION ALL
+SELECT column1 FROM table2;
+
+-- INTERSECT (только общие)
+SELECT column1 FROM table1
+INTERSECT
+SELECT column1 FROM table2;
+
+-- EXCEPT (разность)
+SELECT column1 FROM table1
+EXCEPT
+SELECT column1 FROM table2;
+```
+
+## Оконные функции (Window Functions)
+
+```sql
+-- Ранжирование
+SELECT column1, column2,
+       ROW_NUMBER() OVER (ORDER BY column2) as row_num
+FROM table_name;
+
+-- Партиционирование
+SELECT column1, column2, column3,
+       ROW_NUMBER() OVER (PARTITION BY column1 ORDER BY column2) as row_num
+FROM table_name;
+
+-- Скользящая сумма
+SELECT column1, column2,
+       SUM(column2) OVER (ORDER BY column1) as running_total
+FROM table_name;
+
+-- Лаги и лиды (значения соседних строк)
+SELECT column1, column2,
+       LAG(column2) OVER (ORDER BY column1) as prev_value,
+       LEAD(column2) OVER (ORDER BY column1) as next_value
+FROM table_name;
+```
+
+## Работа с датами и временем
+
+```sql
+-- Текущая дата и время
+SELECT CURRENT_DATE;
+SELECT CURRENT_TIME;
+SELECT CURRENT_TIMESTAMP;
+
+-- Извлечение частей даты
+SELECT EXTRACT(YEAR FROM date_column) FROM table_name;
+SELECT EXTRACT(MONTH FROM date_column) FROM table_name;
+SELECT EXTRACT(DAY FROM date_column) FROM table_name;
+
+-- Добавление интервала
+SELECT date_column + INTERVAL '1 day' FROM table_name;
+SELECT date_column + INTERVAL '1 month' FROM table_name;
+SELECT date_column + INTERVAL '1 year' FROM table_name;
+
+-- Разница между датами
+SELECT DATE_PART('day', date_column1 - date_column2) FROM table_name;
+```
+
+## Работа со строками
+
+```sql
+-- Конкатенация
+SELECT column1 || ' ' || column2 FROM table_name;
+SELECT CONCAT(column1, ' ', column2) FROM table_name;
+
+-- Преобразование регистра
+SELECT UPPER(column1) FROM table_name;
+SELECT LOWER(column1) FROM table_name;
+
+-- Подстрока
+SELECT SUBSTRING(column1, 1, 5) FROM table_name;
+
+-- Длина строки
+SELECT LENGTH(column1) FROM table_name;
+
+-- Замена
+SELECT REPLACE(column1, 'old', 'new') FROM table_name;
+
+-- Удаление пробелов
+SELECT TRIM(column1) FROM table_name;
+```
+
+## Условные выражения
+
+```sql
+-- CASE
+SELECT column1,
+       CASE 
+         WHEN column2 > 100 THEN 'High'
+         WHEN column2 > 50 THEN 'Medium'
+         ELSE 'Low'
+       END as category
+FROM table_name;
+
+-- COALESCE (первое ненулевое значение)
+SELECT COALESCE(column1, column2, 'N/A') FROM table_name;
+
+-- NULLIF (NULL если равны)
+SELECT NULLIF(column1, column2) FROM table_name;
+```
+
+## Создание и изменение структуры
+
+```sql
+-- Создание таблицы
+CREATE TABLE table_name (
+  id INTEGER PRIMARY KEY,
+  column1 VARCHAR(50) NOT NULL,
+  column2 DECIMAL(10,2),
+  column3 DATE,
+  CONSTRAINT fk_constraint FOREIGN KEY (column1) REFERENCES another_table(column1)
+);
+
+-- Изменение таблицы (добавление столбца)
+ALTER TABLE table_name ADD COLUMN new_column INTEGER;
+
+-- Изменение таблицы (изменение типа столбца)
+ALTER TABLE table_name ALTER COLUMN column1 TYPE VARCHAR(100);
+
+-- Создание индекса
+CREATE INDEX idx_name ON table_name(column1);
+
+-- Создание представления
+CREATE VIEW view_name AS
+SELECT column1, column2 FROM table_name WHERE condition;
+```
+
+## Транзакции
+
+```sql
+-- Начать транзакцию
+BEGIN TRANSACTION;
+
+-- Операции внутри транзакции
+INSERT INTO table_name VALUES (1, 'Value');
+UPDATE another_table SET column1 = 'New Value' WHERE id = 1;
+
+-- Сохранить изменения
+COMMIT;
+
+-- Отменить изменения
+ROLLBACK;
+```
+
+## Сложные запросы для экзаменов
+
+### Пример 1: Иерархические запросы (рекурсивные CTE)
+```sql
+-- Найти всех подчиненных сотрудника
+WITH RECURSIVE subordinates AS (
+  -- Базовый случай
+  SELECT employee_id, name, manager_id
+  FROM employees
+  WHERE employee_id = 123  -- ID руководителя
+  
+  UNION ALL
+  
+  -- Рекурсивный случай
+  SELECT e.employee_id, e.name, e.manager_id
+  FROM employees e
+  JOIN subordinates s ON e.manager_id = s.employee_id
+)
+SELECT * FROM subordinates;
+```
+
+### Пример 2: Сводная таблица (Pivot)
+```sql
+-- PostgreSQL пример
+SELECT *
+FROM crosstab(
+  'SELECT category, quarter, sales
+   FROM sales_data
+   ORDER BY 1,2',
+  'SELECT DISTINCT quarter FROM sales_data ORDER BY 1'
+) AS ct (category VARCHAR, q1 NUMERIC, q2 NUMERIC, q3 NUMERIC, q4 NUMERIC);
+```
+
+### Пример 3: Комплексный аналитический запрос
+```sql
+SELECT 
+  d.department_name,
+  e.name,
+  e.salary,
+  AVG(e.salary) OVER (PARTITION BY d.department_id) as dept_avg,
+  e.salary - AVG(e.salary) OVER (PARTITION BY d.department_id) as diff_from_avg,
+  RANK() OVER (PARTITION BY d.department_id ORDER BY e.salary DESC) as salary_rank
+FROM 
+  employees e
+JOIN 
+  departments d ON e.department_id = d.department_id
+WHERE 
+  e.hire_date > CURRENT_DATE - INTERVAL '5 years';
+```
+
+## Советы для экзаменов
+
+1. **Оптимизация запросов**: Понимайте как работают индексы и как оптимизировать сложные запросы.
+2. **Подзапросы и JOIN**: Понимайте разницу между подзапросами и JOIN, и когда использовать каждый вариант.
+3. **Типы данных**: Знайте различные типы данных SQL и их применение.
+4. **Нормализация**: Понимайте нормальные формы (1NF, 2NF, 3NF, BCNF).
+5. **Транзакции и ACID**: Знайте свойства транзакций и изоляции.
+6. **Функциональные зависимости**: Понимайте концепции функциональных зависимостей.
+7. **Оконные функции**: Они часто встречаются в сложных заданиях.
+8. **Временные таблицы**: Знайте как использовать временные таблицы для сложных запросов.
+9. **Миграция данных**: Понимайте стратегии перемещения данных между таблицами.
+10. **Конкурентный доступ**: Знайте принципы блокировок и решения проблем конкурентности. 
